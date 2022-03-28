@@ -1,14 +1,43 @@
-import logo from "./logo.svg";
 import "./App.css";
+import { atom, useRecoilState } from "recoil";
+
+const shoppingList = atom({
+  key: "shoppingList",
+  default: ["Milk", "Eggs", "Bread"],
+});
 
 function App() {
+  const [myShoppingList, setMyShoppingList] = useRecoilState(shoppingList);
+
+  const removeItem = (item) => () => {
+    const itemIndex = myShoppingList.findIndex((element) => element === item);
+    // setMyShoppingList(() => {
+    //   return myShoppingList
+    //     .slice(0, itemIndex)
+    //     .concat(myShoppingList.slice(itemIndex + 1));
+    // });
+    setMyShoppingList([
+      ...myShoppingList.slice(0, itemIndex),
+      ...myShoppingList.slice(itemIndex + 1),
+    ]);
+  };
+
+  const addItem = (event) => {
+    if (event.key === "Enter") {
+      setMyShoppingList([...myShoppingList, event.target.value]);
+    }
+  };
+
   return (
     <div className="App">
       <h1>Shopping List</h1>
+      <input type="text" className="inputbox" onKeyDown={addItem} />
       <ul className="list">
-        <li className="item">Milk</li>
-        <li className="item">Eggs</li>
-        <li className="item">Bread</li>
+        {myShoppingList.map((item, i) => (
+          <li className="item" key={i} onClick={removeItem(item)}>
+            {item}
+          </li>
+        ))}
       </ul>
     </div>
   );
