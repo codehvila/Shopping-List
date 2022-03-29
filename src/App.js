@@ -46,16 +46,19 @@ function App() {
     ]);
   };
 
-  const addItem = (event) => {
+  const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       setMyShoppingList([...myShoppingList, event.target.value]);
+    }
+    if (event.key === "Delete") {
+      event.target.value = "";
     }
   };
 
   return (
     <div className="App">
       <h1>Shopping List</h1>
-      <input type="text" className="inputbox" onKeyDown={addItem} />
+      <input type="text" className="inputbox" onKeyDown={handleKeyDown} />
       <ul className="list">
         {myShoppingList.map((item, i) => (
           <li className="item" key={i} onClick={removeItem(item)}>
