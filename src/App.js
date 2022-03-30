@@ -1,24 +1,20 @@
 import "./App.css";
-import { atom, selector, useRecoilValue } from "recoil";
+import { atom, selectorFamily, useRecoilValue } from "recoil";
 import { DateTime } from "luxon";
 
 const currentTime = DateTime.local();
 
-const sortValue = atom({
-  key: "sortValue",
-  default: "ASC",
-});
-
-const sortedTodoList = selector({
+const sortedTodoList = selectorFamily({
   key: "sortedTodoList",
-  get: ({ get }) => {
-    const sortedType = get(sortValue);
-    const todos = get(todoList);
+  get:
+    (sortedType) =>
+    ({ get }) => {
+      const todos = get(todoList);
 
-    return sortedType === "ASC"
-      ? [...todos].sort((a, b) => a.createdAt - b.createdAt)
-      : todos.slice().sort((a, b) => b.createdAt - a.createdAt);
-  },
+      return sortedType === "ASC"
+        ? [...todos].sort((a, b) => a.createdAt - b.createdAt)
+        : todos.slice().sort((a, b) => b.createdAt - a.createdAt);
+    },
 });
 
 const todoList = atom({
@@ -31,7 +27,8 @@ const todoList = atom({
 });
 
 function App() {
-  const mySortedTodoList = useRecoilValue(sortedTodoList);
+  const sortOrder = "DESC";
+  const mySortedTodoList = useRecoilValue(sortedTodoList(sortOrder));
 
   return (
     <div className="App">
