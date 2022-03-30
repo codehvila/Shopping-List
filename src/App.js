@@ -1,73 +1,46 @@
 import "./App.css";
-import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
+import { atom, selector, useRecoilValue } from "recoil";
+import { DateTime } from "luxon";
 
-const priceList = {
-  Milk: 0.76,
-  Eggs: 1.25,
-  Bread: 0.45,
-  "Olive Oil Bread": 0.5,
-};
+const currentTime = DateTime.local();
 
-const shoppingList = atom({
-  key: "shoppingList",
-  default: ["Milk", "Eggs", "Bread", "Olive Oil Bread"],
+const sortValue = atom({
+  key: "sortValue",
+  default: "ASC",
 });
 
-const amount = selector({
-  key: "amount",
+const sortedTodoList = selector({
+  key: "sortedTodoList",
   get: ({ get }) => {
-    return {
-      totalPrice: get(shoppingList)
-        .map((food) => {
-          return priceList[food] || 0;
-        })
-        .reduce((current, sum) => {
-          return sum + current;
-        }, 0),
-      totalItems: get(shoppingList).length,
-    };
+    const sortedType = get(sortValue);
+    const todos = get(todoList);
+
+    return sortedType === "ASC"
+      ? [...todos].sort((a, b) => a.createdAt - b.createdAt)
+      : todos.slice().sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 
+const todoList = atom({
+  key: "todoList",
+  default: [
+    { name: "buy milk", createdAt: currentTime },
+    { name: "write a book", createdAt: currentTime.plus({ days: 1 }) },
+    { name: "do some exercise", createdAt: currentTime.plus({ days: 2 }) },
+  ],
+});
+
 function App() {
-  const [myShoppingList, setMyShoppingList] = useRecoilState(shoppingList);
-  const total = useRecoilValue(amount);
-
-  const removeItem = (item) => () => {
-    const itemIndex = myShoppingList.findIndex((element) => element === item);
-    // setMyShoppingList(() => {
-    //   return myShoppingList
-    //     .slice(0, itemIndex)
-    //     .concat(myShoppingList.slice(itemIndex + 1));
-    // });
-    setMyShoppingList([
-      ...myShoppingList.slice(0, itemIndex),
-      ...myShoppingList.slice(itemIndex + 1),
-    ]);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      setMyShoppingList([...myShoppingList, event.target.value]);
-    }
-    if (event.key === "Delete") {
-      event.target.value = "";
-    }
-  };
+  const mySortedTodoList = useRecoilValue(sortedTodoList);
 
   return (
     <div className="App">
-      <h1>Shopping List</h1>
-      <input type="text" className="inputbox" onKeyDown={handleKeyDown} />
-      <ul className="list">
-        {myShoppingList.map((item, i) => (
-          <li className="item" key={i} onClick={removeItem(item)}>
-            {item}
-          </li>
-        ))}
-      </ul>
-      <h3>Total Price: {total.totalPrice}</h3>
-      <h4>Total Items: {total.totalItems}</h4>
+      <h1>Todo List</h1>
+      {mySortedTodoList.map((item, index) => (
+        <p key={index}>
+          {item.name} - {item.createdAt.toISODate()}
+        </p>
+      ))}
     </div>
   );
 }
