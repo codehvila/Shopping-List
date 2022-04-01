@@ -1,9 +1,26 @@
+import { Suspense } from "react";
 import "./App.css";
-import { atom, useRecoilState } from "recoil";
+import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
+import { fetchWeather } from "./WeatherApi";
+import Weather from "./Weather";
 
 const cityAtom = atom({
   key: "city",
   default: "",
+});
+
+export const weatherSelector = selector({
+  key: "weather",
+  get: async ({ get }) => {
+    const city = get(cityAtom);
+    try {
+      const weather = await fetchWeather(city);
+      if (weather === null) return "City not found";
+      return weather ? `Weather: ${weather} °C` : "Enter a city";
+    } catch (error) {
+      return error.message;
+    }
+  },
 });
 
 function App() {
@@ -20,7 +37,9 @@ function App() {
         }}
       />
       <h4>
-        <div>Weather: </div>
+        <Suspense fallback={<div>Loading weather...</div>}>
+          <Weather />
+        </Suspense>
       </h4>
     </div>
   );
