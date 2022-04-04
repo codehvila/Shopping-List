@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import "./App.css";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { atom, useSetRecoilState, useRecoilValue } from "recoil";
 
 const count = atom({
   key: "count",
@@ -16,12 +16,11 @@ const CurrentCount = () => {
 };
 
 const IncrementButton = () => {
-  const [currentCount, setCurrentCount] = useRecoilState(count);
+  const setCurrentCount = useSetRecoilState(count);
   useEffect(() => {
     console.log("Render Button");
   });
   const incrementCount = () => {
-    // setCurrentCount(currentCount + 1);
     setCurrentCount((count) => count + 1);
   };
 
