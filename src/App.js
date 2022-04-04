@@ -1,44 +1,39 @@
-import { Suspense } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
-import { fetchWeather } from "./WeatherApi";
-import Weather from "./Weather";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
 
-const cityAtom = atom({
-  key: "city",
-  default: "",
+const count = atom({
+  key: "count",
+  default: 0,
 });
 
-export const weatherSelector = selector({
-  key: "weather",
-  get: async ({ get }) => {
-    const city = get(cityAtom);
-    try {
-      const weather = await fetchWeather(city);
-      if (weather === null) return "City not found";
-      return weather ? `Weather: ${weather} °C` : "Enter a city";
-    } catch (error) {
-      return error.message;
-    }
-  },
-});
+const CurrentCount = () => {
+  const currentCount = useRecoilValue(count);
+  useEffect(() => {
+    console.log("Render Count");
+  });
+  return <p>Current Count: {currentCount}</p>;
+};
+
+const IncrementButton = () => {
+  const [currentCount, setCurrentCount] = useRecoilState(count);
+  useEffect(() => {
+    console.log("Render Button");
+  });
+  const incrementCount = () => {
+    // setCurrentCount(currentCount + 1);
+    setCurrentCount((count) => count + 1);
+  };
+
+  return <button onClick={incrementCount}>+1</button>;
+};
 
 function App() {
-  const [currentCity, setCurrentCity] = useRecoilState(cityAtom);
-
   return (
     <div className="App">
-      <h1>Enter City</h1>
-      <input
-        type="text"
-        value={currentCity}
-        onChange={(e) => {
-          setCurrentCity(e.target.value);
-        }}
-      />
-      <h4>
-        <Weather />
-      </h4>
+      <h1>Counter</h1>
+      <CurrentCount />
+      <IncrementButton />
     </div>
   );
 }
