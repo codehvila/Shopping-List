@@ -37,9 +37,7 @@ function App() {
         }}
       />
       <h4>
-        <Suspense fallback={<div>Loading weather...</div>}>
-          <Weather />
-        </Suspense>
+        <Weather />
       </h4>
     </div>
   );
